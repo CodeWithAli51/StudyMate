@@ -38,21 +38,21 @@ Django 5.x study-planning web app (SQLite, server-rendered templates, minimal JS
 | 0 Foundation | Project structure, Django setup, settings, base layout, health check, test infra, git hygiene | ✅ Done (commits `815e5a2`, `9970f87`) |
 | — | Public landing page at `/` | ✅ Done (`9970f87`) |
 | 1 Accounts | Registration + login/logout | ✅ Done |
-| 1 Accounts | **Student profile (PROMPT 06)** | ⏭️ NEXT |
-| 1 Accounts | Profile editing (PROMPT 06) | ⬜ |
-| 2 Academics | Subject → Chapter → Topic hierarchy (PROMPT 07) | ⬜ |
+| 1 Accounts | Student profile (PROMPT 06) | ✅ Done |
+| 1 Accounts | Profile editing (PROMPT 06) | ✅ Done |
+| 2 Academics | **Subject → Chapter → Topic hierarchy (PROMPT 07)** | ⏭️ NEXT |
 | … | Continue per `StudyMate_README.md` master order | ⬜ |
 
-## NEXT STEP handoff — Student Profile (PROMPT 06)
-Implement **one** roadmap step: a `StudentProfile` model linked 1:1 to the authenticated `User`.
+## NEXT STEP handoff — Academic Structure (PROMPT 07)
+Implement **one** roadmap step: the Subject → Chapter → Topic academic hierarchy.
 
-- Model fields (Profile in `accounts/models.py`): display name, grade, board, academic year, goal, preferred daily study minutes.
-- `Signal`/`get_or_create` so every registered user gets a profile (one-way: User → StudentProfile).
-- Views: profile setup, profile edit, profile display (`accounts/views.py` + urls + templates in `templates/accounts/`), each enforcing the current user's own profile only.
-- Do NOT add subjects yet (that's PROMPT 07).
-- Migrations: `makemigrations accounts` + `migrate`.
-- Tests: model + view + permission (user B can't read/edit user A's profile).
-- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add student profiles`), push to `main`, update the checkpoint table above, stop.
+- Models (`academics/models.py`): `Subject`, `Chapter`, `Topic` with a strict parent→child relationship (Subject → Chapter → Topic).
+- Add admin support, sensible ordering, and validation.
+- Basic list/detail pages.
+- Do NOT build study tasks yet (that's PROMPT 09).
+- Migrations: `makemigrations academics` + `migrate`.
+- Tests: model relationships and validation.
+- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add academic structure`), push to `main`, update the checkpoint table above, stop.
 
 ## Git / GitHub
 - Remote: `https://github.com/CodeWithAli51/StudyMate` (`origin`, branch `main`). Keep local == remote == `9970f87`.

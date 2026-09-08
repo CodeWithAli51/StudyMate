@@ -1,11 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile | StudyMate{% endblock %}
+{% block title %}Your Profile | StudyMate{% endblock %}
 
 {% block content %}
     <section class="page-hero">
         <h1>Your Profile</h1>
-        <p>Hello, {{ user.username }}. Profile setup is coming soon.</p>
-        <p class="page-placeholder">This page is under construction.</p>
+        <dl class="profile-details">
+            {% if profile.display_name %}
+                <div class="profile-row"><dt>Name</dt><dd>{{ profile.display_name }}</dd></div>
+            {% endif %}
+            {% if profile.grade %}
+                <div class="profile-row"><dt>Grade</dt><dd>{{ profile.grade }}</dd></div>
+            {% endif %}
+            {% if profile.board %}
+                <div class="profile-row"><dt>Board</dt><dd>{{ profile.board }}</dd></div>
+            {% endif %}
+            {% if profile.academic_year %}
+                <div class="profile-row"><dt>Academic year</dt><dd>{{ profile.academic_year }}</dd></div>
+            {% endif %}
+            {% if profile.goal %}
+                <div class="profile-row"><dt>Goal</dt><dd>{{ profile.goal }}</dd></div>
+            {% endif %}
+            <div class="profile-row"><dt>Daily study goal</dt><dd>{{ profile.preferred_daily_study_minutes }} minutes</dd></div>
+        </dl>
+        {% if profile.display_name %}
+            <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">Edit profile</a>
+        {% else %}
+            <a href="{% url 'accounts:profile_setup' %}" class="btn btn-primary">Complete your profile</a>
+        {% endif %}
     </section>
 {% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete your profile | StudyMate{% endblock %}
+
+{% block content %}
+    <section class="auth-form">
+        <h1>Let's set up your profile</h1>
+        <p class="auth-alt">Just a few details so StudyMate can help you study better.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Save profile</button>
+        </form>
+    </section>
+{% endblock %}
