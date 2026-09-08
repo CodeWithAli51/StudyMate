@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}StudyMate — Study smarter, every day{% endblock %}
+
+{% block content %}
+<section class="landing-hero">
+    <div class="landing-hero-inner">
+        <h1>Know exactly what to study today.</h1>
+        <p class="landing-tagline">StudyMate turns your daily studying into something structured, measurable, and motivating. Plan it, practice it, and watch your confidence grow.</p>
+        <div class="landing-cta">
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary">Get started free</a>
+            <a href="{% url 'accounts:login' %}" class="btn btn-ghost">Log in</a>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section">
+    <h2>Built for students who want to improve</h2>
+    <div class="landing-grid">
+        <div class="card landing-card">
+            <h3>📋 Plan your day</h3>
+            <p>Build a clear daily study plan — subjects, topics, and time — so you always know what's next.</p>
+        </div>
+        <div class="card landing-card">
+            <h3>📝 Practice with quizzes</h3>
+            <p>Test yourself with targeted questions and get instant, helpful feedback on every answer.</p>
+        </div>
+        <div class="card landing-card">
+            <h3>🔁 Revise what matters</h3>
+            <p>Find your weak topics and get a smart revision queue that keeps them fresh before exams.</p>
+        </div>
+        <div class="card landing-card">
+            <h3>📊 Track real progress</h3>
+            <p>See accuracy, streaks, and topic mastery — not just hours spent.</p>
+        </div>
+        <div class="card landing-card">
+            <h3>🔥 Stay consistent</h3>
+            <p>Earn achievements and keep your streak going with gentle, motivating milestones.</p>
+        </div>
+        <div class="card landing-card">
+            <h3>🤖 Get AI help</h3>
+            <p>Ask StudyMate AI to explain, simplify, or quiz you — help that teaches instead of handing over answers.</p>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section landing-alt">
+    <h2>How it works</h2>
+    <ol class="landing-steps">
+        <li><strong>Create your profile</strong> — tell StudyMate your class, board, and subjects.</li>
+        <li><strong>Plan each day</strong> — set study tasks with clear goals and durations.</li>
+        <li><strong>Study, then practice</strong> — complete sessions and test what you learned.</li>
+        <li><strong>Review and improve</strong> — revise weak spots and watch your accuracy climb.</li>
+    </ol>
+</section>
+
+<section class="landing-cta-bottom">
+    <h2>Your study command center is one step away.</h2>
+    <a href="{% url 'accounts:register' %}" class="btn btn-primary">Start studying smarter</a>
+</section>
+{% endblock %}

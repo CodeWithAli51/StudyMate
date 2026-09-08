@@ -10,7 +10,8 @@ The scaffold now passes `manage.py check`. Every app that `config/urls.py` inclu
 
 Who's wired up:
 - `config/urls.py` includes: `dashboard`, `accounts`, `academics`, `planner`, `practice`, `revision`, `assistant`. **Note:** `progress` and `gamification` are in `INSTALLED_APPS` but have **no `urls.py`** and no URL namespace — don't call `{% url 'progress:...' %}` / `{% url 'gamification:...' %}` until those apps get views.
-- `templates/base.html` is the shared layout and defines the CSS design system in `static/css/styles.css`; nav links for the app pages + auth live there.
+- `dashboard` routing: **`/` is the public marketing landing page** (`dashboard:landing`, `LandingView`) which returns 302→`dashboard:home` for authenticated users; the authenticated home lives at `/dashboard/` (`dashboard:home`). When adding app pages, don't route the landing page away from `/`.
+- `templates/base.html` is the shared layout and defines the CSS design system in `static/css/styles.css`; the nav links branch on `user.is_authenticated` (brand/Home → landing for anonymous, dashboard for logged-in). App page templates live under `templates/<app>/`.
 - ALLOWED_HOSTS in `.env` is `localhost,127.0.0.1`. The Django test runner's host is `testserver`, so a standalone `manage.py shell` Django `test client` will 400 unless you pass `HTTP_HOST='localhost'`; normal `manage.py test` is unaffected.
 
 Run `manage.py check` and the test suite before/after changes.

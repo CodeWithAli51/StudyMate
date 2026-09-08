@@ -10,16 +10,24 @@
 <body>
     <header class="site-header">
         <div class="container header-inner">
-            <a href="{% url 'dashboard:home' %}" class="brand">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard:home' %}" class="brand">
+            {% else %}
+                <a href="{% url 'dashboard:landing' %}" class="brand">
+            {% endif %}
                 <span class="brand-mark">📚</span>
                 <span class="brand-name">StudyMate</span>
             </a>
             <nav class="site-nav" aria-label="Primary">
-                <a href="{% url 'dashboard:home' %}">Home</a>
-                <a href="{% url 'planner:index' %}">Plan</a>
-                <a href="{% url 'practice:index' %}">Practice</a>
-                <a href="{% url 'revision:index' %}">Revision</a>
-                <a href="{% url 'assistant:index' %}">AI</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard:home' %}">Home</a>
+                    <a href="{% url 'planner:index' %}">Plan</a>
+                    <a href="{% url 'practice:index' %}">Practice</a>
+                    <a href="{% url 'revision:index' %}">Revision</a>
+                    <a href="{% url 'assistant:index' %}">AI</a>
+                {% else %}
+                    <a href="{% url 'dashboard:landing' %}">Home</a>
+                {% endif %}
             </nav>
             <div class="header-actions">
                 {% if user.is_authenticated %}
