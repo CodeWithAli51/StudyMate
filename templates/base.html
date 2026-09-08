@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StudyMate{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="{% url 'dashboard:home' %}" class="brand">
+                <span class="brand-mark">📚</span>
+                <span class="brand-name">StudyMate</span>
+            </a>
+            <nav class="site-nav" aria-label="Primary">
+                <a href="{% url 'dashboard:home' %}">Home</a>
+                <a href="{% url 'planner:index' %}">Plan</a>
+                <a href="{% url 'practice:index' %}">Practice</a>
+                <a href="{% url 'revision:index' %}">Revision</a>
+                <a href="{% url 'assistant:index' %}">AI</a>
+            </nav>
+            <div class="header-actions">
+                {% if user.is_authenticated %}
+                    <span class="user-name">{{ user.username }}</span>
+                    <form method="post" action="{% url 'accounts:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-ghost btn-sm">Log out</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="btn btn-ghost btn-sm">Log in</a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Sign up</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        {% if messages %}
+            <div class="messages" aria-live="polite">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>StudyMate — study smarter, every day.</p>
+        </div>
+    </footer>
+</body>
+</html>

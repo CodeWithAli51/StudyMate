@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign up | StudyMate{% endblock %}
+
+{% block content %}
+    <section class="auth-form">
+        <h1>Create your account</h1>
+        <form method="post" action="{% url 'accounts:register' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Sign up</button>
+        </form>
+        <p class="auth-alt">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+    </section>
+{% endblock %}
