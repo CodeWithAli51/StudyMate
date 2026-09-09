@@ -40,7 +40,7 @@ Django 5.x study-planning web app (SQLite, server-rendered templates, minimal JS
 | 1 Accounts | Registration + login/logout | ✅ Done |
 | 1 Accounts | Student profile (PROMPT 06) | ✅ Done |
 | 1 Accounts | Profile editing (PROMPT 06) | ✅ Done |
-| 2 Academics | **Subject → Chapter → Topic hierarchy (PROMPT 07)** | ⏭️ NEXT |
+| 2 Academics | **Subject → Chapter → Topic hierarchy (PROMPT 07)** | ✅ Done (`feat: add academic structure`) |
 | … | Continue per `StudyMate_README.md` master order | ⬜ |
 
 ## NEXT STEP handoff — Academic Structure (PROMPT 07)
