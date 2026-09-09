@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from academics.models import Chapter, Subject, Topic
 
-from .models import StudyTask
+from .models import StudySession, StudyTask
 
 User = get_user_model()
 
@@ -372,3 +372,158 @@ class TodayPlanTests(TestCase):
             reverse('planner:task_start', args=[bob_task.pk])
         )
         self.assertEqual(response.status_code, 404)
+
+
+class StudySessionModelTests(TestCase):
+    def setUp(self):
+        from datetime import timedelta
+
+        self.timedelta = timedelta
+        self.alice = User.objects.create_user(
+            username='alice', password='testpass123'
+        )
+        self.bob = User.objects.create_user(
+            username='bob', password='testpass123'
+        )
+        self.maths = Subject.objects.create(name='Mathematics')
+        self.task = StudyTask.objects.create(
+            student=self.alice, title='Alice task', subject=self.maths
+        )
+
+    def test_duration_minutes(self):
+        start = timezone.now() - self.timedelta(minutes=25)
+        session = StudySession.objects.create(
+            student=self.alice,
+            task=self.task,
+            started_at=start,
+            ended_at=start + self.timedelta(minutes=25),
+            confidence=StudySession.CONFIDENCE_GOOD,
+        )
+        self.assertEqual(session.duration_minutes, 25)
+        self.assertFalse(session.is_active)
+
+    def test_active_session_has_no_duration(self):
+        session = StudySession.objects.create(
+            student=self.alice, task=self.task
+        )
+        self.assertTrue(session.is_active)
+        self.assertIsNone(session.duration)
+        self.assertIsNone(session.duration_minutes)
+
+    def test_end_before_start_invalid(self):
+        start = timezone.now()
+        session = StudySession(
+            student=self.alice,
+            task=self.task,
+            started_at=start,
+            ended_at=start - self.timedelta(minutes=1),
+        )
+        with self.assertRaises(ValidationError):
+            session.full_clean()
+
+    def test_task_must_belong_to_student(self):
+        bob_task = StudyTask.objects.create(
+            student=self.bob, title='Bob task', subject=self.maths
+        )
+        session = StudySession(student=self.alice, task=bob_task)
+        with self.assertRaises(ValidationError):
+            session.full_clean()
+
+
+class StudySessionViewTests(TestCase):
+    def setUp(self):
+        self.alice = User.objects.create_user(
+            username='alice', password='testpass123'
+        )
+        self.bob = User.objects.create_user(
+            username='bob', password='testpass123'
+        )
+        self.maths = Subject.objects.create(name='Mathematics')
+        self.task = StudyTask.objects.create(
+            student=self.alice, title='Alice task', subject=self.maths
+        )
+
+    def test_start_requires_login(self):
+        response = self.client.post(
+            reverse('planner:session_start', args=[self.task.pk])
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(StudySession.objects.count(), 0)
+
+    def test_start_session(self):
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.post(
+            reverse('planner:session_start', args=[self.task.pk])
+        )
+        session = StudySession.objects.get(task=self.task)
+        self.assertEqual(
+            response.url, reverse('planner:session_detail', args=[session.pk])
+        )
+        self.assertEqual(session.student, self.alice)
+        self.assertTrue(session.is_active)
+
+    def test_cannot_start_session_for_other_user_task(self):
+        self.client.login(username='bob', password='testpass123')
+        response = self.client.post(
+            reverse('planner:session_start', args=[self.task.pk])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_second_start_redirects_to_active_session(self):
+        self.client.login(username='alice', password='testpass123')
+        self.client.post(reverse('planner:session_start', args=[self.task.pk]))
+        other = StudyTask.objects.create(
+            student=self.alice, title='Other', subject=self.maths
+        )
+        response = self.client.post(
+            reverse('planner:session_start', args=[other.pk])
+        )
+        self.assertEqual(StudySession.objects.count(), 1)
+        active = StudySession.objects.get()
+        self.assertEqual(
+            response.url, reverse('planner:session_detail', args=[active.pk])
+        )
+
+    def test_finish_session_with_confidence(self):
+        self.client.login(username='alice', password='testpass123')
+        session = StudySession.objects.create(
+            student=self.alice, task=self.task
+        )
+        response = self.client.post(
+            reverse('planner:session_finish', args=[session.pk]),
+            {
+                'confidence': StudySession.CONFIDENCE_GOOD,
+                'reflection': 'Felt solid.',
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        session.refresh_from_db()
+        self.assertFalse(session.is_active)
+        self.assertEqual(session.confidence, StudySession.CONFIDENCE_GOOD)
+        self.assertEqual(session.reflection, 'Felt solid.')
+        self.assertIsNotNone(session.ended_at)
+
+    def test_cannot_finish_other_user_session(self):
+        session = StudySession.objects.create(
+            student=self.alice, task=self.task
+        )
+        self.client.login(username='bob', password='testpass123')
+        response = self.client.post(
+            reverse('planner:session_finish', args=[session.pk]),
+            {'confidence': StudySession.CONFIDENCE_OKAY},
+        )
+        self.assertEqual(response.status_code, 404)
+        session.refresh_from_db()
+        self.assertTrue(session.is_active)
+
+    def test_history_shows_own_sessions_only(self):
+        bob_task = StudyTask.objects.create(
+            student=self.bob, title='Bob task', subject=self.maths
+        )
+        StudySession.objects.create(student=self.alice, task=self.task)
+        StudySession.objects.create(student=self.bob, task=bob_task)
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.get(reverse('planner:session_history'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Alice task')
+        self.assertNotContains(response, 'Bob task')

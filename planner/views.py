@@ -6,8 +6,8 @@ from django.views.generic import TemplateView
 
 from academics.models import Subject
 
-from .forms import StudyTaskForm
-from .models import StudyTask
+from .forms import StudySessionFinishForm, StudyTaskForm
+from .models import StudySession, StudyTask
 
 
 class PlannerIndexView(TemplateView):
@@ -145,3 +145,61 @@ def get_today_plan(user):
 @login_required
 def today_plan(request):
     return render(request, 'planner/today.html', get_today_plan(request.user))
+
+
+@login_required
+def session_start(request, task_pk):
+    task = get_object_or_404(StudyTask, pk=task_pk, student=request.user)
+    if request.method == 'POST':
+        active = StudySession.objects.filter(
+            student=request.user, ended_at__isnull=True
+        ).first()
+        if active is not None:
+            messages.info(request, 'You already have an active session.')
+            return redirect('planner:session_detail', pk=active.pk)
+        session = StudySession.objects.create(
+            student=request.user, task=task
+        )
+        messages.success(request, 'Study session started.')
+        return redirect('planner:session_detail', pk=session.pk)
+    return redirect('planner:today')
+
+
+@login_required
+def session_detail(request, pk):
+    session = get_object_or_404(StudySession, pk=pk, student=request.user)
+    form = StudySessionFinishForm(instance=session) if session.is_active else None
+    return render(request, 'planner/session_detail.html', {
+        'session': session, 'form': form,
+    })
+
+
+@login_required
+def session_finish(request, pk):
+    session = get_object_or_404(StudySession, pk=pk, student=request.user)
+    if not session.is_active:
+        return redirect('planner:session_detail', pk=session.pk)
+    if request.method == 'POST':
+        form = StudySessionFinishForm(request.POST, instance=session)
+        if form.is_valid():
+            session = form.save(commit=False)
+            session.ended_at = timezone.now()
+            session.full_clean()
+            session.save()
+            messages.success(request, 'Study session finished.')
+            return redirect('planner:session_detail', pk=session.pk)
+    else:
+        form = StudySessionFinishForm(instance=session)
+    return render(request, 'planner/session_detail.html', {
+        'session': session, 'form': form,
+    })
+
+
+@login_required
+def session_history(request):
+    sessions = StudySession.objects.filter(
+        student=request.user
+    ).select_related('task', 'task__subject')
+    return render(request, 'planner/session_history.html', {
+        'sessions': sessions,
+    })

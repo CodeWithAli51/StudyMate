@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 
 class StudyTask(models.Model):
@@ -102,3 +103,68 @@ class StudyTask(models.Model):
                 raise ValidationError(
                     {'topic': 'Topic must belong to the selected subject.'}
                 )
+
+
+class StudySession(models.Model):
+    CONFIDENCE_VERY_WEAK = 1
+    CONFIDENCE_WEAK = 2
+    CONFIDENCE_OKAY = 3
+    CONFIDENCE_GOOD = 4
+    CONFIDENCE_VERY_CONFIDENT = 5
+    CONFIDENCE_CHOICES = [
+        (CONFIDENCE_VERY_WEAK, 'Very weak'),
+        (CONFIDENCE_WEAK, 'Weak'),
+        (CONFIDENCE_OKAY, 'Okay'),
+        (CONFIDENCE_GOOD, 'Good'),
+        (CONFIDENCE_VERY_CONFIDENT, 'Very confident'),
+    ]
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='study_sessions',
+    )
+    task = models.ForeignKey(
+        StudyTask,
+        on_delete=models.CASCADE,
+        related_name='sessions',
+    )
+    started_at = models.DateTimeField(default=timezone.now)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    confidence = models.IntegerField(
+        choices=CONFIDENCE_CHOICES, null=True, blank=True
+    )
+    reflection = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-started_at']
+
+    def __str__(self):
+        return f"{self.task.title} — {self.started_at:%Y-%m-%d %H:%M}"
+
+    @property
+    def is_active(self):
+        return self.ended_at is None
+
+    @property
+    def duration(self):
+        if self.ended_at is None:
+            return None
+        return self.ended_at - self.started_at
+
+    @property
+    def duration_minutes(self):
+        if self.duration is None:
+            return None
+        return int(self.duration.total_seconds() // 60)
+
+    def clean(self):
+        super().clean()
+        if self.task_id and self.task.student_id != self.student_id:
+            raise ValidationError(
+                {'task': 'Session task must belong to the same student.'}
+            )
+        if self.ended_at and self.ended_at < self.started_at:
+            raise ValidationError(
+                {'ended_at': 'Session cannot end before it starts.'}
+            )

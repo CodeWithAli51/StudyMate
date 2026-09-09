@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import StudyTask
+from .models import StudySession, StudyTask
 
 
 class StudyTaskForm(forms.ModelForm):
@@ -12,4 +12,14 @@ class StudyTaskForm(forms.ModelForm):
         ]
         widgets = {
             'due_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
+class StudySessionFinishForm(forms.ModelForm):
+    class Meta:
+        model = StudySession
+        fields = ['confidence', 'reflection']
+        widgets = {
+            'confidence': forms.RadioSelect,
+            'reflection': forms.Textarea(attrs={'rows': 3}),
         }

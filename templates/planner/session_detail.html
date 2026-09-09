@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Study session | StudyMate{% endblock %}
+
+{% block content %}
+    <section class="page-hero">
+        <h1>{{ session.task.title }}</h1>
+        <dl class="profile-details">
+            <div class="profile-row"><dt>Subject</dt><dd>{{ session.task.subject.name }}</dd></div>
+            <div class="profile-row"><dt>Started</dt><dd>{{ session.started_at }}</dd></div>
+            {% if session.ended_at %}
+                <div class="profile-row"><dt>Ended</dt><dd>{{ session.ended_at }}</dd></div>
+                <div class="profile-row"><dt>Duration</dt><dd>{{ session.duration_minutes }} minutes</dd></div>
+                <div class="profile-row"><dt>Confidence</dt><dd>{{ session.get_confidence_display }}</dd></div>
+                {% if session.reflection %}
+                    <div class="profile-row"><dt>Reflection</dt><dd>{{ session.reflection }}</dd></div>
+                {% endif %}
+            {% else %}
+                <div class="profile-row"><dt>Status</dt><dd>In progress</dd></div>
+            {% endif %}
+        </dl>
+    </section>
+    {% if form %}
+        <section class="auth-form">
+            <h2>Finish session</h2>
+            <p>How confident are you?</p>
+            <form method="post" action="{% url 'planner:session_finish' session.pk %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Finish session</button>
+                </div>
+            </form>
+        </section>
+    {% else %}
+        <p><a href="{% url 'planner:session_history' %}" class="btn btn-ghost">Back to history</a></p>
+    {% endif %}
+{% endblock %}

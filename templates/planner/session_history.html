@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Session history | StudyMate{% endblock %}
+
+{% block content %}
+    <section class="page-hero">
+        <h1>Session history</h1>
+    </section>
+    <section>
+        {% if sessions %}
+            <ul>
+                {% for session in sessions %}
+                    <li>
+                        <a href="{% url 'planner:session_detail' session.pk %}">{{ session.task.title }}</a>
+                        — {{ session.task.subject.name }}
+                        — {{ session.started_at|date:'Y-m-d H:i' }}
+                        {% if session.is_active %}
+                            — in progress
+                        {% else %}
+                            — {{ session.duration_minutes }} min, {{ session.get_confidence_display }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No study sessions yet. Start one from your <a href="{% url 'planner:today' %}">plan for today</a>.</p>
+        {% endif %}
+    </section>
+{% endblock %}

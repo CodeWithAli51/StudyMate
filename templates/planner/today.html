@@ -25,6 +25,10 @@
                         — {{ task.subject.name }}
                         — {{ task.get_priority_display }} priority
                         — {{ task.estimated_minutes }} min
+                        <form method="post" action="{% url 'planner:session_start' task.pk %}" style="display:inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-ghost btn-sm">Study</button>
+                        </form>
                         <form method="post" action="{% url 'planner:task_start' task.pk %}" style="display:inline">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'planner:today' %}">
