@@ -45,16 +45,16 @@ Django 5.x study-planning web app (SQLite, server-rendered templates, minimal JS
 | 3 Planner | Study task model (PROMPT 09) | ✅ Done (`feat: add study tasks`) |
 | … | Continue per `StudyMate_README.md` master order | ⬜ |
 
-## NEXT STEP handoff — Academic Structure (PROMPT 07)
-Implement **one** roadmap step: the Subject → Chapter → Topic academic hierarchy.
+## NEXT STEP handoff — Study Task CRUD (PROMPT 10)
+Implement **one** roadmap step: the Study Task UI using the existing `planner.StudyTask` model.
 
-- Models (`academics/models.py`): `Subject`, `Chapter`, `Topic` with a strict parent→child relationship (Subject → Chapter → Topic).
-- Add admin support, sensible ordering, and validation.
-- Basic list/detail pages.
-- Do NOT build study tasks yet (that's PROMPT 09).
-- Migrations: `makemigrations academics` + `migrate`.
-- Tests: model relationships and validation.
-- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add academic structure`), push to `main`, update the checkpoint table above, stop.
+- Task list, create, edit, delete, mark complete.
+- Clear empty state; filters by subject/status.
+- Every operation must enforce student ownership (`student=request.user`).
+- Do NOT add drag-and-drop, AI, or analytics (later prompts).
+- No model changes expected (no migration); if you must change the model, run `makemigrations` + `migrate`.
+- Tests: CRUD and permissions (login required, cross-user blocked).
+- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add study task management`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
 
 ## Git / GitHub
 - Remote: `https://github.com/CodeWithAli51/StudyMate` (`origin`, branch `main`). Keep local == remote == `9970f87`.

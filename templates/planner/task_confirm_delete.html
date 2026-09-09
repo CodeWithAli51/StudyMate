@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete task | StudyMate{% endblock %}
+
+{% block content %}
+    <section class="auth-form">
+        <h1>Delete task</h1>
+        <p>Are you sure you want to delete "{{ task.title }}"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Yes, delete</button>
+                <a href="{% url 'planner:task_list' %}" class="btn btn-ghost">Cancel</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Tasks | StudyMate{% endblock %}
+
+{% block content %}
+    <section class="page-hero">
+        <h1>Study tasks</h1>
+        <p><a href="{% url 'planner:task_create' %}" class="btn btn-primary">New task</a></p>
+        <form method="get" class="form-actions">
+            <label>Subject
+                <select name="subject">
+                    <option value="">All</option>
+                    {% for subject in subjects %}
+                        <option value="{{ subject.pk }}"{% if subject.pk|stringformat:'s' == active_subject %} selected{% endif %}>{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Status
+                <select name="status">
+                    <option value="">All</option>
+                    {% for value, label in statuses %}
+                        <option value="{{ value }}"{% if value == active_status %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button type="submit" class="btn btn-ghost btn-sm">Filter</button>
+            {% if active_subject or active_status %}
+                <a href="{% url 'planner:task_list' %}" class="btn btn-ghost btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </section>
+    <section>
+        {% if tasks %}
+            <ul>
+                {% for task in tasks %}
+                    <li>
+                        <strong>{{ task.title }}</strong>
+                        — {{ task.subject.name }}
+                        — {{ task.get_task_type_display }}
+                        — {{ task.get_status_display }}
+                        {% if task.due_date %}— due {{ task.due_date }}{% endif %}
+                        <a href="{% url 'planner:task_update' task.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+                        <a href="{% url 'planner:task_delete' task.pk %}" class="btn btn-ghost btn-sm">Delete</a>
+                        {% if task.status != 'completed' %}
+                            <form method="post" action="{% url 'planner:task_complete' task.pk %}" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-ghost btn-sm">Mark complete</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No study tasks yet. <a href="{% url 'planner:task_create' %}">Create your first task</a> to start planning.</p>
+        {% endif %}
+    </section>
+{% endblock %}
