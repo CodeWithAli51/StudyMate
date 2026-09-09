@@ -47,16 +47,18 @@ Django 5.x study-planning web app (SQLite, server-rendered templates, minimal JS
 | 3 Planner | Daily plan (PROMPT 11) | ✅ Done (`feat: add daily study plan`) |
 | 4 Sessions | Study Sessions (PROMPT 12) | ✅ Done (`feat: track study sessions`) |
 | 5 Dashboard | Daily overview (PROMPT 13) | ✅ Done (`feat: add student dashboard`) |
+| 5 Dashboard | Streak display (PROMPT 14) | ✅ Done (`feat: add study streaks`) |
 | … | Continue per `StudyMate_README.md` master order | ⬜ |
 
-## NEXT STEP handoff — Streak Calculation (PROMPT 14)
-Add a reliable study streak calculation.
+## NEXT STEP handoff — Question and Quiz Foundation (PROMPT 15)
+Build the quiz data model only (no UI yet) in `practice/`.
 
-- A study day = a day with at least one completed study task or finished study session.
-- Implement: current streak, longest streak. Derive from source records; no redundant storage.
-- Edge-case tests: no activity, one day, consecutive days, gap, activity today, activity yesterday but not today.
-- Wire the current streak into the dashboard (small addition only).
-- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add study streaks`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
+- Create: `Question`, `Quiz`, `QuizQuestion` relation, `QuizAttempt`, `AnswerAttempt`.
+- Support initially: MCQ and True/False.
+- Include: subject, chapter/topic when applicable, explanation, correct answer, difficulty.
+- Add strong model validation and tests.
+- Migrations: new models expected → run `makemigrations` + `migrate`.
+- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add quiz data model`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
 
 ## Git / GitHub
 - Remote: `https://github.com/CodeWithAli51/StudyMate` (`origin`, branch `main`). Keep local == remote == `9970f87`.
