@@ -45,18 +45,17 @@ Django 5.x study-planning web app (SQLite, server-rendered templates, minimal JS
 | 3 Planner | Study task model (PROMPT 09) | ✅ Done (`feat: add study tasks`) |
 | 3 Planner | Study Task CRUD (PROMPT 10) | ✅ Done (`feat: add study task management`) |
 | 3 Planner | Daily plan (PROMPT 11) | ✅ Done (`feat: add daily study plan`) |
+| 4 Sessions | Study Sessions (PROMPT 12) | ✅ Done (`feat: track study sessions`) |
 | … | Continue per `StudyMate_README.md` master order | ⬜ |
 
-## NEXT STEP handoff — Study Sessions (PROMPT 12)
-Implement **one** roadmap step: StudySession tracking using the existing `planner.StudyTask` model.
+## NEXT STEP handoff — First Real Dashboard (PROMPT 13)
+Build the main StudyMate dashboard using existing data only (`dashboard:home` at `/dashboard/`).
 
-- A session records: student, task, started_at, ended_at, duration, confidence rating, optional reflection.
-- Implement: start session, finish session, history, confidence selection.
-- Do NOT build a sophisticated Pomodoro system.
-- Ensure sessions belong to the correct student.
-- Migrations: new model expected → run `makemigrations` + `migrate`.
-- Tests: duration and ownership.
-- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: track study sessions`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
+- Show: greeting, today's progress (reuse planner's today logic), task counts, estimated remaining minutes, recent study activity, quick actions, next recommended task.
+- Current streak only if already calculable; otherwise leave streaks to PROMPT 14.
+- Do not add fake statistics; good empty states when data is missing. No AI.
+- Tests: view/template tests.
+- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add student dashboard`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
 
 ## Git / GitHub
 - Remote: `https://github.com/CodeWithAli51/StudyMate` (`origin`, branch `main`). Keep local == remote == `9970f87`.
