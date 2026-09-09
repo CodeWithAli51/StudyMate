@@ -46,16 +46,17 @@ Django 5.x study-planning web app (SQLite, server-rendered templates, minimal JS
 | 3 Planner | Study Task CRUD (PROMPT 10) | ✅ Done (`feat: add study task management`) |
 | 3 Planner | Daily plan (PROMPT 11) | ✅ Done (`feat: add daily study plan`) |
 | 4 Sessions | Study Sessions (PROMPT 12) | ✅ Done (`feat: track study sessions`) |
+| 5 Dashboard | Daily overview (PROMPT 13) | ✅ Done (`feat: add student dashboard`) |
 | … | Continue per `StudyMate_README.md` master order | ⬜ |
 
-## NEXT STEP handoff — First Real Dashboard (PROMPT 13)
-Build the main StudyMate dashboard using existing data only (`dashboard:home` at `/dashboard/`).
+## NEXT STEP handoff — Streak Calculation (PROMPT 14)
+Add a reliable study streak calculation.
 
-- Show: greeting, today's progress (reuse planner's today logic), task counts, estimated remaining minutes, recent study activity, quick actions, next recommended task.
-- Current streak only if already calculable; otherwise leave streaks to PROMPT 14.
-- Do not add fake statistics; good empty states when data is missing. No AI.
-- Tests: view/template tests.
-- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add student dashboard`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
+- A study day = a day with at least one completed study task or finished study session.
+- Implement: current streak, longest streak. Derive from source records; no redundant storage.
+- Edge-case tests: no activity, one day, consecutive days, gap, activity today, activity yesterday but not today.
+- Wire the current streak into the dashboard (small addition only).
+- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add study streaks`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
 
 ## Git / GitHub
 - Remote: `https://github.com/CodeWithAli51/StudyMate` (`origin`, branch `main`). Keep local == remote == `9970f87`.
