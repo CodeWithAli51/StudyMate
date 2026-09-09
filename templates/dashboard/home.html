@@ -4,8 +4,40 @@
 
 {% block content %}
     <section class="page-hero">
-        <h1>Welcome to StudyMate</h1>
-        <p>Your personal study command center. Build daily plans, track progress, and study smarter.</p>
-        <p class="page-placeholder">This page is under construction.</p>
+        <h1>{{ greeting }}, {{ name }}</h1>
+        <dl class="profile-details">
+            <div class="profile-row"><dt>Today</dt><dd>{{ plan.done_count }} / {{ plan.done_count|add:plan.open_count }} tasks done</dd></div>
+            <div class="profile-row"><dt>Progress</dt><dd>{{ plan.progress_percent }}% ({{ plan.done_minutes }} / {{ plan.total_minutes }} min)</dd></div>
+            <div class="profile-row"><dt>Remaining</dt><dd>{{ plan.open_minutes }} minutes, {{ plan.open_count }} tasks</dd></div>
+        </dl>
+        {% if plan.next_task %}
+            <p>Next up: <strong>{{ plan.next_task.title }}</strong> ({{ plan.next_task.subject.name }}, {{ plan.next_task.estimated_minutes }} min) <a href="{% url 'planner:today' %}" class="btn btn-primary btn-sm">Go to today</a></p>
+        {% else %}
+            <p>No tasks due today. <a href="{% url 'planner:task_create' %}">Add a task</a> to plan your day.</p>
+        {% endif %}
+    </section>
+    <section>
+        <h2>Quick actions</h2>
+        <p>
+            <a href="{% url 'planner:today' %}" class="btn btn-ghost btn-sm">Today's plan</a>
+            <a href="{% url 'planner:task_create' %}" class="btn btn-ghost btn-sm">New task</a>
+            <a href="{% url 'planner:session_history' %}" class="btn btn-ghost btn-sm">Session history</a>
+            <a href="{% url 'accounts:subject_select' %}" class="btn btn-ghost btn-sm">My subjects</a>
+        </p>
+    </section>
+    <section>
+        <h2>Recent activity</h2>
+        {% if recent_completions or recent_sessions %}
+            <ul>
+                {% for task in recent_completions %}
+                    <li>Completed: {{ task.title }} — {{ task.subject.name }}</li>
+                {% endfor %}
+                {% for session in recent_sessions %}
+                    <li>Studied: {{ session.task.title }} — {{ session.duration_minutes }} min, {{ session.get_confidence_display }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nothing here yet. Complete a task or finish a study session and it will show up.</p>
+        {% endif %}
     </section>
 {% endblock %}
