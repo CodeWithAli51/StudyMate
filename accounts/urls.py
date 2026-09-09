@@ -12,4 +12,5 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('profile/setup/', views.profile_setup, name='profile_setup'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
+    path('profile/subjects/', views.subject_select, name='subject_select'),
 ]

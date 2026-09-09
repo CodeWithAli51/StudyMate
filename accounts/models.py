@@ -14,6 +14,11 @@ class StudentProfile(models.Model):
     academic_year = models.CharField(max_length=20, blank=True)
     goal = models.TextField(blank=True)
     preferred_daily_study_minutes = models.PositiveIntegerField(default=60)
+    subjects = models.ManyToManyField(
+        'academics.Subject',
+        blank=True,
+        related_name='enrolled_profiles',
+    )
 
     def __str__(self):
         return self.display_name or self.user.username

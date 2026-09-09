@@ -121,3 +121,72 @@ class StudentProfilePermissionTests(TestCase):
         response = self.client.get(reverse('accounts:profile'))
         self.assertContains(response, 'Bob B')
         self.assertNotContains(response, 'Alice A')
+
+
+class SubjectSelectionTests(TestCase):
+    def setUp(self):
+        from academics.models import Subject
+        self.maths = Subject.objects.create(name='Mathematics', code='MATH')
+        self.science = Subject.objects.create(name='Science', code='SCI')
+        self.alice = User.objects.create_user(
+            username='alice', password='testpass123'
+        )
+        self.bob = User.objects.create_user(
+            username='bob', password='testpass123'
+        )
+
+    def test_selection_requires_login(self):
+        response = self.client.get(reverse('accounts:subject_select'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_select_subjects_updates_own_profile(self):
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.post(
+            reverse('accounts:subject_select'),
+            {'subjects': [self.maths.pk, self.science.pk]},
+        )
+        self.assertEqual(response.status_code, 302)
+        profile = StudentProfile.objects.get(user=self.alice)
+        self.assertEqual(
+            set(profile.subjects.values_list('pk', flat=True)),
+            {self.maths.pk, self.science.pk},
+        )
+
+    def test_unselect_removes_subjects(self):
+        self.client.login(username='alice', password='testpass123')
+        self.alice.student_profile.subjects.set([self.maths, self.science])
+        response = self.client.post(
+            reverse('accounts:subject_select'),
+            {'subjects': [self.maths.pk]},
+        )
+        self.assertEqual(response.status_code, 302)
+        profile = StudentProfile.objects.get(user=self.alice)
+        self.assertEqual(list(profile.subjects.all()), [self.maths])
+
+    def test_invalid_subject_ids_ignored(self):
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.post(
+            reverse('accounts:subject_select'),
+            {'subjects': [self.maths.pk, 99999]},
+        )
+        self.assertEqual(response.status_code, 302)
+        profile = StudentProfile.objects.get(user=self.alice)
+        self.assertEqual(list(profile.subjects.all()), [self.maths])
+
+    def test_user_cannot_modify_other_user_selection(self):
+        self.bob.student_profile.subjects.set([self.science])
+        self.client.login(username='alice', password='testpass123')
+        self.client.post(
+            reverse('accounts:subject_select'),
+            {'subjects': [self.maths.pk]},
+        )
+        bob_profile = StudentProfile.objects.get(user=self.bob)
+        self.assertEqual(list(bob_profile.subjects.all()), [self.science])
+
+    def test_profile_shows_own_subjects_only(self):
+        self.alice.student_profile.subjects.set([self.maths])
+        self.bob.student_profile.subjects.set([self.science])
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.get(reverse('accounts:profile'))
+        self.assertContains(response, 'Mathematics')
+        self.assertNotContains(response, 'Science')

@@ -22,7 +22,9 @@
                 <div class="profile-row"><dt>Goal</dt><dd>{{ profile.goal }}</dd></div>
             {% endif %}
             <div class="profile-row"><dt>Daily study goal</dt><dd>{{ profile.preferred_daily_study_minutes }} minutes</dd></div>
+            <div class="profile-row"><dt>Subjects</dt><dd>{% for subject in profile.subjects.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% empty %}None selected{% endfor %}</dd></div>
         </dl>
+        <a href="{% url 'accounts:subject_select' %}" class="btn btn-ghost">Choose subjects</a>
         {% if profile.display_name %}
             <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">Edit profile</a>
         {% else %}

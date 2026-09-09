@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import StudentProfileForm
 from .models import StudentProfile
+from academics.models import Subject
 
 
 def register(request):
@@ -48,6 +49,24 @@ def profile_edit(request):
     else:
         form = StudentProfileForm(instance=profile)
     return render(request, 'accounts/profile_edit.html', {'form': form})
+
+
+@login_required
+def subject_select(request):
+    profile = get_object_or_404(StudentProfile, user=request.user)
+    if request.method == 'POST':
+        selected_ids = request.POST.getlist('subjects')
+        valid_ids = set(
+            Subject.objects.filter(pk__in=selected_ids).values_list('pk', flat=True)
+        )
+        profile.subjects.set(valid_ids)
+        messages.success(request, 'Subject selection updated.')
+        return redirect('accounts:profile')
+    return render(request, 'accounts/subject_select.html', {
+        'profile': profile,
+        'subjects': Subject.objects.all(),
+        'selected_ids': set(profile.subjects.values_list('pk', flat=True)),
+    })
 
 
 @login_required
