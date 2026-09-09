@@ -374,6 +374,109 @@ class TodayPlanTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class StreakTests(TestCase):
+    def setUp(self):
+        from datetime import timedelta
+
+        from .streaks import get_streaks
+
+        self.timedelta = timedelta
+        self.get_streaks = get_streaks
+        self.alice = User.objects.create_user(
+            username='alice', password='testpass123'
+        )
+        self.maths = Subject.objects.create(name='Mathematics')
+        self.task = StudyTask.objects.create(
+            student=self.alice, title='Alice task', subject=self.maths
+        )
+
+    def complete_on(self, days_ago):
+        moment = timezone.now() - self.timedelta(days=days_ago)
+        StudyTask.objects.create(
+            student=self.alice,
+            title=f'Done {days_ago}d ago',
+            subject=self.maths,
+            status=StudyTask.STATUS_COMPLETED,
+            completed_at=moment,
+        )
+
+    def finish_session_on(self, days_ago):
+        moment = timezone.now() - self.timedelta(days=days_ago)
+        StudySession.objects.create(
+            student=self.alice,
+            task=self.task,
+            started_at=moment - self.timedelta(minutes=20),
+            ended_at=moment,
+        )
+
+    def test_no_activity(self):
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 0, 'longest': 0}
+        )
+
+    def test_single_day(self):
+        self.complete_on(0)
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 1, 'longest': 1}
+        )
+
+    def test_consecutive_days(self):
+        self.complete_on(0)
+        self.complete_on(1)
+        self.complete_on(2)
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 3, 'longest': 3}
+        )
+
+    def test_gap_resets_current_but_keeps_longest(self):
+        self.complete_on(0)
+        self.complete_on(4)
+        self.complete_on(5)
+        self.complete_on(6)
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 1, 'longest': 3}
+        )
+
+    def test_activity_today(self):
+        self.complete_on(0)
+        self.complete_on(1)
+        streaks = self.get_streaks(self.alice)
+        self.assertEqual(streaks['current'], 2)
+
+    def test_activity_yesterday_but_not_today(self):
+        self.complete_on(1)
+        self.complete_on(2)
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 2, 'longest': 2}
+        )
+
+    def test_stale_streak_is_zero(self):
+        self.complete_on(5)
+        self.complete_on(6)
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 0, 'longest': 2}
+        )
+
+    def test_finished_session_counts_as_study_day(self):
+        self.finish_session_on(0)
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 1, 'longest': 1}
+        )
+
+    def test_task_and_session_same_day_count_once(self):
+        self.complete_on(0)
+        self.finish_session_on(0)
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 1, 'longest': 1}
+        )
+
+    def test_active_session_does_not_count(self):
+        StudySession.objects.create(student=self.alice, task=self.task)
+        self.assertEqual(
+            self.get_streaks(self.alice), {'current': 0, 'longest': 0}
+        )
+
+
 class StudySessionModelTests(TestCase):
     def setUp(self):
         from datetime import timedelta

@@ -9,6 +9,7 @@
             <div class="profile-row"><dt>Today</dt><dd>{{ plan.done_count }} / {{ plan.done_count|add:plan.open_count }} tasks done</dd></div>
             <div class="profile-row"><dt>Progress</dt><dd>{{ plan.progress_percent }}% ({{ plan.done_minutes }} / {{ plan.total_minutes }} min)</dd></div>
             <div class="profile-row"><dt>Remaining</dt><dd>{{ plan.open_minutes }} minutes, {{ plan.open_count }} tasks</dd></div>
+            <div class="profile-row"><dt>Streak</dt><dd>{% if streak.current %}🔥 {{ streak.current }} day{{ streak.current|pluralize }}{% else %}No streak yet — complete a task to start one{% endif %}</dd></div>
         </dl>
         {% if plan.next_task %}
             <p>Next up: <strong>{{ plan.next_task.title }}</strong> ({{ plan.next_task.subject.name }}, {{ plan.next_task.estimated_minutes }} min) <a href="{% url 'planner:today' %}" class="btn btn-primary btn-sm">Go to today</a></p>

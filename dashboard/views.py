@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 
 from accounts.models import StudentProfile
 from planner.models import StudySession, StudyTask
+from planner.streaks import get_streaks
 from planner.views import get_today_plan
 
 
@@ -43,6 +44,7 @@ class DashboardHomeView(LoginRequiredMixin, TemplateView):
             'greeting': greeting,
             'name': name,
             'plan': plan,
+            'streak': get_streaks(user),
             'recent_completions': recent_completions,
             'recent_sessions': recent_sessions,
         })

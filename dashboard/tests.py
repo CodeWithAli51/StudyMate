@@ -104,3 +104,8 @@ class DashboardContentTests(TestCase):
         self.assertContains(response, reverse('planner:today'))
         self.assertContains(response, reverse('planner:task_create'))
         self.assertContains(response, reverse('planner:session_history'))
+
+    def test_streak_shown(self):
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.get(reverse('dashboard:home'))
+        self.assertContains(response, '1 day')
