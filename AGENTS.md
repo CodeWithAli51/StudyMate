@@ -44,17 +44,19 @@ Django 5.x study-planning web app (SQLite, server-rendered templates, minimal JS
 | 2 Academics | Student subject selection (PROMPT 08) | ✅ Done (`feat: add student subject selection`) |
 | 3 Planner | Study task model (PROMPT 09) | ✅ Done (`feat: add study tasks`) |
 | 3 Planner | Study Task CRUD (PROMPT 10) | ✅ Done (`feat: add study task management`) |
+| 3 Planner | Daily plan (PROMPT 11) | ✅ Done (`feat: add daily study plan`) |
 | … | Continue per `StudyMate_README.md` master order | ⬜ |
 
-## NEXT STEP handoff — Daily Plan (PROMPT 11)
-Implement **one** roadmap step: turn study tasks into a useful Today page using the existing `planner.StudyTask` model.
+## NEXT STEP handoff — Study Sessions (PROMPT 12)
+Implement **one** roadmap step: StudySession tracking using the existing `planner.StudyTask` model.
 
-- Show: today's tasks, completion state, estimated total/completed minutes, progress percentage, priority, next recommended task.
-- Allow: mark complete, start a task (starting = later prompt; smallest reasonable: link or status change only).
-- Do NOT create a separate dashboard yet (that's PROMPT 13).
-- No model changes expected (no migration); if you must change the model, run `makemigrations` + `migrate`.
-- Tests: today's filtering and progress calculation.
-- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add daily study plan`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
+- A session records: student, task, started_at, ended_at, duration, confidence rating, optional reflection.
+- Implement: start session, finish session, history, confidence selection.
+- Do NOT build a sophisticated Pomodoro system.
+- Ensure sessions belong to the correct student.
+- Migrations: new model expected → run `makemigrations` + `migrate`.
+- Tests: duration and ownership.
+- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: track study sessions`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
 
 ## Git / GitHub
 - Remote: `https://github.com/CodeWithAli51/StudyMate` (`origin`, branch `main`). Keep local == remote == `9970f87`.
