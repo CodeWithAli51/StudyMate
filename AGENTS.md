@@ -48,17 +48,17 @@ Django 5.x study-planning web app (SQLite, server-rendered templates, minimal JS
 | 4 Sessions | Study Sessions (PROMPT 12) | ✅ Done (`feat: track study sessions`) |
 | 5 Dashboard | Daily overview (PROMPT 13) | ✅ Done (`feat: add student dashboard`) |
 | 5 Dashboard | Streak display (PROMPT 14) | ✅ Done (`feat: add study streaks`) |
+| 6 Practice | Question and quiz foundation (PROMPT 15) | ✅ Done (`feat: add quiz data model`) |
 | … | Continue per `StudyMate_README.md` master order | ⬜ |
 
-## NEXT STEP handoff — Question and Quiz Foundation (PROMPT 15)
-Build the quiz data model only (no UI yet) in `practice/`.
+## NEXT STEP handoff — Quiz Experience (PROMPT 16)
+Build the student quiz experience using the existing `practice` quiz models.
 
-- Create: `Question`, `Quiz`, `QuizQuestion` relation, `QuizAttempt`, `AnswerAttempt`.
-- Support initially: MCQ and True/False.
-- Include: subject, chapter/topic when applicable, explanation, correct answer, difficulty.
-- Add strong model validation and tests.
-- Migrations: new models expected → run `makemigrations` + `migrate`.
-- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add quiz data model`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
+- Implement: quiz start, one question at a time, answer submission, scoring, result page, explanations, accuracy.
+- Do NOT add AI-generated questions yet.
+- A student must not access another student's private attempt data.
+- Tests: scoring, completed attempts, invalid answers, permissions.
+- DoD: `manage.py check` clean, `manage.py test` green, commit with convention (suggested: `feat: add quiz experience`), push to `main`, update the checkpoint table above AND this handoff to the next prompt, stop.
 
 ## Git / GitHub
 - Remote: `https://github.com/CodeWithAli51/StudyMate` (`origin`, branch `main`). Keep local == remote == `9970f87`.
