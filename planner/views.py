@@ -95,4 +95,53 @@ def task_complete(request, pk):
         _stamp_completion(task)
         task.save()
         messages.success(request, 'Task marked complete.')
-    return redirect('planner:task_list')
+    return redirect(request.POST.get('next', 'planner:task_list'))
+
+
+@login_required
+def task_start(request, pk):
+    task = get_object_or_404(StudyTask, pk=pk, student=request.user)
+    if request.method == 'POST' and task.status != StudyTask.STATUS_COMPLETED:
+        task.status = StudyTask.STATUS_IN_PROGRESS
+        _stamp_completion(task)
+        task.save()
+        messages.success(request, 'Task started.')
+    return redirect(request.POST.get('next', 'planner:task_list'))
+
+
+def get_today_plan(user):
+    today = timezone.localdate()
+    open_tasks = StudyTask.objects.filter(
+        student=user, due_date__lte=today
+    ).exclude(status=StudyTask.STATUS_COMPLETED).select_related(
+        'subject', 'chapter', 'topic'
+    ).order_by('-priority', 'due_date', '-created_at')
+    completed_today = StudyTask.objects.filter(
+        student=user,
+        status=StudyTask.STATUS_COMPLETED,
+        completed_at__date=today,
+    ).select_related('subject', 'chapter', 'topic')
+    open_minutes = sum(t.estimated_minutes for t in open_tasks)
+    done_minutes = sum(t.estimated_minutes for t in completed_today)
+    total_minutes = open_minutes + done_minutes
+    if total_minutes:
+        progress_percent = round(done_minutes * 100 / total_minutes)
+    else:
+        progress_percent = 0
+    return {
+        'date': today,
+        'open_tasks': list(open_tasks),
+        'completed_today': list(completed_today),
+        'open_count': len(open_tasks),
+        'done_count': len(completed_today),
+        'open_minutes': open_minutes,
+        'done_minutes': done_minutes,
+        'total_minutes': total_minutes,
+        'progress_percent': progress_percent,
+        'next_task': open_tasks[0] if open_tasks else None,
+    }
+
+
+@login_required
+def today_plan(request):
+    return render(request, 'planner/today.html', get_today_plan(request.user))

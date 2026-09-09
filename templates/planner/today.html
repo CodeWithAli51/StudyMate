@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Today | StudyMate{% endblock %}
+
+{% block content %}
+    <section class="page-hero">
+        <h1>Today's plan</h1>
+        <p>{{ date }}</p>
+        <dl class="profile-details">
+            <div class="profile-row"><dt>Tasks</dt><dd>{{ done_count }} / {{ done_count|add:open_count }} completed</dd></div>
+            <div class="profile-row"><dt>Time</dt><dd>{{ done_minutes }} / {{ total_minutes }} minutes</dd></div>
+            <div class="profile-row"><dt>Progress</dt><dd>{{ progress_percent }}%</dd></div>
+        </dl>
+        {% if next_task %}
+            <p>Next up: <strong>{{ next_task.title }}</strong> ({{ next_task.subject.name }}, {{ next_task.estimated_minutes }} min)</p>
+        {% endif %}
+    </section>
+    <section>
+        <h2>To do</h2>
+        {% if open_tasks %}
+            <ul>
+                {% for task in open_tasks %}
+                    <li>
+                        <strong>{{ task.title }}</strong>
+                        — {{ task.subject.name }}
+                        — {{ task.get_priority_display }} priority
+                        — {{ task.estimated_minutes }} min
+                        <form method="post" action="{% url 'planner:task_start' task.pk %}" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'planner:today' %}">
+                            <button type="submit" class="btn btn-ghost btn-sm">Start</button>
+                        </form>
+                        <form method="post" action="{% url 'planner:task_complete' task.pk %}" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'planner:today' %}">
+                            <button type="submit" class="btn btn-ghost btn-sm">Mark complete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nothing left for today. {% if not completed_today %}<a href="{% url 'planner:task_create' %}">Add a task</a> or set due dates on your <a href="{% url 'planner:task_list' %}">task list</a>.{% endif %}</p>
+        {% endif %}
+    </section>
+    {% if completed_today %}
+        <section>
+            <h2>Completed today</h2>
+            <ul>
+                {% for task in completed_today %}
+                    <li>{{ task.title }} — {{ task.subject.name }} ({{ task.estimated_minutes }} min)</li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+{% endblock %}

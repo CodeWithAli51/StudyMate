@@ -6,6 +6,6 @@
     <section class="page-hero">
         <h1>Study Plan</h1>
         <p>Organize your daily study tasks and build a plan that works for you.</p>
-        <p><a href="{% url 'planner:task_list' %}" class="btn btn-primary">View tasks</a></p>
+        <p><a href="{% url 'planner:today' %}" class="btn btn-primary">Today's plan</a> <a href="{% url 'planner:task_list' %}" class="btn btn-ghost">View tasks</a></p>
     </section>
 {% endblock %}

@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from academics.models import Chapter, Subject, Topic
 
@@ -255,3 +256,119 @@ class StudyTaskViewTests(TestCase):
         self.assertEqual(response.status_code, 404)
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, StudyTask.STATUS_TODO)
+
+
+class TodayPlanTests(TestCase):
+    def setUp(self):
+        from datetime import timedelta
+
+        from .views import get_today_plan
+
+        self.get_today_plan = get_today_plan
+        self.alice = User.objects.create_user(
+            username='alice', password='testpass123'
+        )
+        self.bob = User.objects.create_user(
+            username='bob', password='testpass123'
+        )
+        self.maths = Subject.objects.create(name='Mathematics')
+        self.today = timezone.localdate()
+        self.due_today = StudyTask.objects.create(
+            student=self.alice,
+            title='Due today',
+            subject=self.maths,
+            due_date=self.today,
+            estimated_minutes=30,
+            priority=StudyTask.PRIORITY_MEDIUM,
+        )
+        self.overdue = StudyTask.objects.create(
+            student=self.alice,
+            title='Overdue',
+            subject=self.maths,
+            due_date=self.today - timedelta(days=2),
+            estimated_minutes=30,
+            priority=StudyTask.PRIORITY_HIGH,
+        )
+        self.future = StudyTask.objects.create(
+            student=self.alice,
+            title='Future',
+            subject=self.maths,
+            due_date=self.today + timedelta(days=3),
+            estimated_minutes=30,
+        )
+        self.undated = StudyTask.objects.create(
+            student=self.alice, title='Undated', subject=self.maths
+        )
+        self.done = StudyTask.objects.create(
+            student=self.alice,
+            title='Done today',
+            subject=self.maths,
+            due_date=self.today,
+            estimated_minutes=30,
+            status=StudyTask.STATUS_COMPLETED,
+            completed_at=timezone.now(),
+        )
+        StudyTask.objects.create(
+            student=self.bob,
+            title='Bob task',
+            subject=self.maths,
+            due_date=self.today,
+        )
+
+    def test_today_requires_login(self):
+        response = self.client.get(reverse('planner:today'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_today_filtering(self):
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.get(reverse('planner:today'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Due today')
+        self.assertContains(response, 'Overdue')
+        self.assertContains(response, 'Done today')
+        self.assertNotContains(response, 'Future')
+        self.assertNotContains(response, 'Undated')
+        self.assertNotContains(response, 'Bob task')
+
+    def test_progress_calculation(self):
+        plan = self.get_today_plan(self.alice)
+        self.assertEqual(plan['open_minutes'], 60)
+        self.assertEqual(plan['done_minutes'], 30)
+        self.assertEqual(plan['total_minutes'], 90)
+        self.assertEqual(plan['progress_percent'], 33)
+
+    def test_progress_zero_without_tasks(self):
+        StudyTask.objects.filter(student=self.alice).delete()
+        plan = self.get_today_plan(self.alice)
+        self.assertEqual(plan['total_minutes'], 0)
+        self.assertEqual(plan['progress_percent'], 0)
+        self.assertIsNone(plan['next_task'])
+
+    def test_next_task_is_highest_priority(self):
+        plan = self.get_today_plan(self.alice)
+        self.assertEqual(plan['next_task'], self.overdue)
+
+    def test_start_task(self):
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.post(
+            reverse('planner:task_start', args=[self.due_today.pk])
+        )
+        self.assertEqual(response.status_code, 302)
+        self.due_today.refresh_from_db()
+        self.assertEqual(
+            self.due_today.status, StudyTask.STATUS_IN_PROGRESS
+        )
+
+    def test_start_completed_task_changes_nothing(self):
+        self.client.login(username='alice', password='testpass123')
+        self.client.post(reverse('planner:task_start', args=[self.done.pk]))
+        self.done.refresh_from_db()
+        self.assertEqual(self.done.status, StudyTask.STATUS_COMPLETED)
+
+    def test_cannot_start_other_user_task(self):
+        bob_task = StudyTask.objects.get(title='Bob task')
+        self.client.login(username='alice', password='testpass123')
+        response = self.client.post(
+            reverse('planner:task_start', args=[bob_task.pk])
+        )
+        self.assertEqual(response.status_code, 404)
