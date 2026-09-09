@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}{{ subject.name }} — StudyMate{% endblock %}
+{% block content %}
+<h1>{{ subject.name }}</h1>
+<h2>Chapters</h2>
+<ul>
+{% for ch in chapters %}
+<li><a href="{% url 'academics:chapter_detail' ch.pk %}">Ch {{ ch.number }}: {{ ch.name }}</a></li>
+{% empty %}
+<li>No chapters yet.</li>
+{% endfor %}
+</ul>
+<a href="{% url 'academics:index' %}">Back</a>
+{% endblock %}

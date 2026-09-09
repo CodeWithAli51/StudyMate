@@ -1,11 +1,13 @@
 {% extends 'base.html' %}
-
-{% block title %}Academics | StudyMate{% endblock %}
-
+{% block title %}Academics — StudyMate{% endblock %}
 {% block content %}
-    <section class="page-hero">
-        <h1>Academics</h1>
-        <p>Browse subjects, chapters, and topics.</p>
-        <p class="page-placeholder">This page is under construction.</p>
-    </section>
+<h1>Academics</h1>
+<h2>Subjects</h2>
+<ul>
+{% for s in subjects %}
+<li><a href="{% url 'academics:subject_detail' s.pk %}">{{ s.name }}</a> ({{ s.code }})</li>
+{% empty %}
+<li>No subjects yet.</li>
+{% endfor %}
+</ul>
 {% endblock %}

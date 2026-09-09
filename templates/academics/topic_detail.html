@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}{{ topic.name }} — StudyMate{% endblock %}
+{% block content %}
+<h1>{{ topic.chapter.subject.name }} — {{ topic.chapter.name }} — {{ topic.name }}</h1>
+<a href="{% url 'academics:chapter_detail' topic.chapter.pk %}">Back</a>
+{% endblock %}
